@@ -2,7 +2,7 @@ import "./globals.css";
 
 export const metadata = {
   title: "AI ESL Writing Assessment",
-  description: "Teacher-controlled writing activity with AI-assisted grading",
+  description: "Teacher-controlled writing activity builder with AI-assisted grading",
 };
 
 export default function RootLayout({ children }) {

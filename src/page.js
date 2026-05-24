@@ -1,2 +1,4 @@
-import StudentPage from "./student/page";
-export default StudentPage;
+import { redirect } from "next/navigation";
+export default function Home() {
+  redirect("/teacher");
+}

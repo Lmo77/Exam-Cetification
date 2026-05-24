@@ -1,6 +1,5 @@
 "use client";
-
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export const RUBRIC = [
   { category: "Grammar Accuracy", weight: 25, key: "grammar" },
@@ -67,96 +66,4 @@ export function TimerBadge({ secondsLeft, totalSeconds }) {
       {String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")} remaining
     </div>
   );
-}
-
-export function useESLState() {
-  const [title, setTitle] = useState("Opinion Essay Practice");
-  const [cefrLevel, setCefrLevel] = useState("B1");
-  const [minWords, setMinWords] = useState(120);
-  const [targetWords, setTargetWords] = useState(150);
-  const [maxWords, setMaxWords] = useState(180);
-  const [timerMinutes, setTimerMinutes] = useState(30);
-  const [requiredDrafts, setRequiredDrafts] = useState(2);
-  const [taskType, setTaskType] = useState("Opinion Essay");
-  const [strictness, setStrictness] = useState(60);
-  const [prompt, setPrompt] = useState(
-    "Some people believe technology improves education while others think it causes distraction. Discuss both views and give your opinion."
-  );
-  const [published, setPublished] = useState(false);
-  const [studentText, setStudentText] = useState("");
-  const [currentDraft, setCurrentDraft] = useState(1);
-  const [secondsLeft, setSecondsLeft] = useState(30 * 60);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [timerExpired, setTimerExpired] = useState(false);
-  const timerRef = useRef(null);
-  const [loading, setLoading] = useState(false);
-  const [feedback, setFeedback] = useState(null);
-  const [error, setError] = useState(null);
-  const [teacherDecision, setTeacherDecision] = useState(null);
-  const [editingFeedback, setEditingFeedback] = useState(false);
-  const [editedSummary, setEditedSummary] = useState("");
-  const [feedbackReleased, setFeedbackReleased] = useState(false);
-
-  const wordCount = studentText.trim() === "" ? 0 : studentText.trim().split(/\s+/).length;
-  const wordCountColor = wordCount < minWords ? "#dc2626" : wordCount > maxWords ? "#ca8a04" : "#16a34a";
-
-  useEffect(() => { setSecondsLeft(timerMinutes * 60); setTimerExpired(false); }, [timerMinutes, published]);
-
-  useEffect(() => {
-    if (timerRunning && secondsLeft > 0) {
-      timerRef.current = setInterval(() => {
-        setSecondsLeft((s) => {
-          if (s <= 1) { clearInterval(timerRef.current); setTimerRunning(false); setTimerExpired(true); return 0; }
-          return s - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timerRef.current);
-  }, [timerRunning]);
-
-  const handlePublish = () => {
-    setPublished(true); setFeedback(null); setTeacherDecision(null);
-    setFeedbackReleased(false); setCurrentDraft(1); setStudentText("");
-    setSecondsLeft(timerMinutes * 60); setTimerExpired(false);
-    if (timerMinutes > 0) setTimerRunning(true);
-  };
-
-  const handleSubmit = useCallback(async () => {
-    if (wordCount < minWords) { setError(`Please write at least ${minWords} words. You have ${wordCount}.`); return; }
-    setError(null); setLoading(true); setFeedback(null);
-    setTeacherDecision(null); setFeedbackReleased(false);
-
-    try {
-      const res = await fetch("/api/grade", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentText, prompt, cefrLevel, taskType, strictness, minWords, maxWords, currentDraft, requiredDrafts }),
-      });
-      const parsed = await res.json();
-      if (parsed.error) throw new Error(parsed.error);
-      setFeedback(parsed);
-      setEditedSummary(parsed.summaryComment);
-      if (currentDraft < requiredDrafts) setCurrentDraft((d) => d + 1);
-    } catch (err) {
-      setError("Failed to get AI feedback. Please try again.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [studentText, prompt, cefrLevel, taskType, strictness, minWords, maxWords, currentDraft, requiredDrafts, wordCount]);
-
-  return {
-    title, setTitle, cefrLevel, setCefrLevel,
-    minWords, setMinWords, targetWords, setTargetWords, maxWords, setMaxWords,
-    timerMinutes, setTimerMinutes, requiredDrafts, setRequiredDrafts,
-    taskType, setTaskType, strictness, setStrictness,
-    prompt, setPrompt, published, handlePublish,
-    studentText, setStudentText, currentDraft,
-    secondsLeft, timerExpired, wordCount, wordCountColor,
-    loading, feedback, error, handleSubmit,
-    teacherDecision, setTeacherDecision,
-    editingFeedback, setEditingFeedback,
-    editedSummary, setEditedSummary,
-    feedbackReleased, setFeedbackReleased,
-  };
 }

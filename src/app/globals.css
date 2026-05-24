@@ -1,6 +1,2 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 * { box-sizing: border-box; }
-body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: #f3f4f6; }

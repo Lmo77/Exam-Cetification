@@ -30,12 +30,8 @@ The JSON must have exactly this structure:
 }`;
 
   const userMessage = `Writing prompt: "${prompt}"
-
-Student submission (Draft ${currentDraft} of ${requiredDrafts}):
-"${studentText}"
-
+Student submission (Draft ${currentDraft} of ${requiredDrafts}): "${studentText}"
 Word count: ${wordCount} (Target: ${minWords}–${maxWords} words)
-
 Assess this against the CEFR ${cefrLevel} descriptor. Return only the JSON object.`;
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -63,8 +59,7 @@ Assess this against the CEFR ${cefrLevel} descriptor. Return only the JSON objec
   const clean = raw.replace(/```json|```/g, "").trim();
 
   try {
-    const parsed = JSON.parse(clean);
-    return NextResponse.json(parsed);
+    return NextResponse.json(JSON.parse(clean));
   } catch {
     return NextResponse.json({ error: "Failed to parse AI response", raw }, { status: 500 });
   }
