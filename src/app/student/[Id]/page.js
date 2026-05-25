@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { RUBRIC, inputStyle, cardStyle, btnPrimary, btnSecondary, ScoreBar } from "../../shared";
+import { inputStyle, cardStyle, btnPrimary, btnSecondary, ScoreBar } from "../../shared";
 
 export default function StudentPage({ params }) {
-  const { id } = params;
+  const [id, setId] = useState(null);
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -17,6 +17,11 @@ export default function StudentPage({ params }) {
   const timerRef = useRef(null);
 
   useEffect(() => {
+    Promise.resolve(params).then((p) => setId(p.id));
+  }, [params]);
+
+  useEffect(() => {
+    if (!id) return;
     fetch(`/api/activities?id=${id}`)
       .then((r) => r.json())
       .then((data) => {
@@ -105,7 +110,7 @@ export default function StudentPage({ params }) {
               <div style={{ background: timeLeft < 60 ? "#fef2f2" : "#fefce8", border: `1px solid ${timeLeft < 60 ? "#fca5a5" : "#fde68a"}`, borderRadius: 10, padding: "8px 16px", textAlign: "center" }}>
                 <p style={{ fontSize: 11, fontWeight: 600, color: "#6b7280", margin: "0 0 2px" }}>TIME LEFT</p>
                 <p style={{ fontSize: 22, fontWeight: 700, margin: 0, color: timeLeft < 60 ? "#dc2626" : "#111", fontFamily: "monospace" }}>
-                  {timerStarted ? formatTime(timeLeft) : formatTime(timeLeft)}
+                  {formatTime(timeLeft)}
                 </p>
               </div>
             )}
