@@ -17,17 +17,22 @@ export default function StudentPage({ params }) {
   const timerRef = useRef(null);
 
   useEffect(() => {
-    if (!id) return;
     fetch(`/api/activities?id=${id}`)
       .then((r) => r.json())
       .then((data) => {
-        if (data.error) { setNotFound(true); setLoading(false); return; }
-        setActivity(data);
-        if (data.timerMinutes > 0) setTimeLeft(data.timerMinutes * 60);
+        if (!data || data.error) {
+          setNotFound(true);
+        } else {
+          setActivity(data);
+          if (data.timerMinutes > 0) setTimeLeft(data.timerMinutes * 60);
+        }
         setLoading(false);
       })
-      .catch(() => { setNotFound(true); setLoading(false); });
-  }, [id]);
+      .catch(() => {
+        setNotFound(true);
+        setLoading(false);
+      });
+  }, []);
 
   const startTimer = () => {
     setTimerStarted(true);
